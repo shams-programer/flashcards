@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق البطاقات التعليمية</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* ... (ابقى على نفس الأنماط السابقة) ... */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            text-align: center;
+            direction: rtl;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode .container {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-panel img {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        .control-panel input, .control-panel select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode .control-panel input, body.dark-mode .control-panel select {
+            background-color: #333;
+            color: #ffffff;
+            border-color: #555;
+        }
+        .add-card-btn {
+            background-color: white;
+            color: red;
+            border: 2px solid red;
+            padding: 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .add-card-btn:hover {
+            background-color: red;
+            color: white;
+        }
+        body.dark-mode .add-card-btn {
+            background-color: #333;
+            color: red;
+            border-color: red;
+        }
+        body.dark-mode .add-card-btn:hover {
+            background-color: red;
+            color: white;
+        }
+        .my-cards-panel, .cards-panel {
+            display: none; /* مخفي بشكل افتراضي */
+        }
+        .sections-container, .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .section-card, .flashcard {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        body.dark-mode .section-card, body.dark-mode .flashcard {
+            background-color: #333;
+            color: #ffffff;
+        }
+        .section-card:hover, .flashcard:hover {
+            background-color: #eee;
+        }
+        body.dark-mode .section-card:hover, body.dark-mode .flashcard:hover {
+            background-color: #444;
+        }
+        .section-icon {
+            font-size: 40px;
+        }
+        .back-btn {
+            background: navy;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #003366;
+        }
+        body.dark-mode .back-btn {
+            background-color: #555;
+            color: white;
+        }
+        body.dark-mode .back-btn:hover {
+            background-color: #666;
+        }
+        .flashcard img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        .flashcard .word {
+            font-size: 18px;
+            font-weight: bold;
+            color: navy;
+            margin-bottom: 10px;
+        }
+        body.dark-mode .flashcard .word {
+            color: #ffffff;
+        }
+        .flashcard .translation {
+            font-size: 16px;
+            color: green;
+            display: none;
+        }
+        body.dark-mode .flashcard .translation {
+            color: lightgreen;
+        }
+        .flashcard .audio-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: black;
+        }
+        body.dark-mode .flashcard .audio-btn {
+            color: white;
+        }
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: navy;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        body.dark-mode .dark-mode-toggle {
+            background-color: #555;
+            color: white;
+        }
+        .delete-section-btn, .delete-card-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .edit-section-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: navy;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()">الوضع الداكن</button>
+    <div class="container">
+        <!-- لوحة التحكم -->
+        <div class="control-panel" id="control-panel">
+            <input type="file" id="image-upload" accept="image/*" style="display: none;" onchange="previewImage(event)">
+            <img src="https://via.placeholder.com/100" alt="إضافة صورة" onclick="document.getElementById('image-upload').click();">
+            <select id="section-select" onchange="handleSectionSelect()">
+                <option value="" disabled selected>اختر قسمًا</option>
+                <option value="new">إنشاء قسم جديد</option>
+                <!-- الأقسام ستضاف هنا -->
+            </select>
+            <input type="text" id="new-section" placeholder="أدخل اسم قسم جديد" style="display: none;">
+            <input type="text" id="word" placeholder="ENTER WORD">
+            <input type="text" id="translation" placeholder="TRANSLATION">
+            <button class="add-card-btn" onclick="addFlashcard()">ADD CARD</button>
+            <button class="back-btn" onclick="showMyCards()">بطاقاتي</button>
+        </div>
+
+        <!-- قسم الأقسام -->
+        <div class="my-cards-panel" id="my-cards-panel">
+            <button class="back-btn" onclick="showControlPanel()">العودة إلى لوحة التحكم</button>
+            <h2>أقسام البطاقات التعليمية</h2>
+            <div class="sections-container" id="sections-container">
+                <!-- الأقسام ستضاف هنا -->
+            </div>
+        </div>
+
+        <!-- قسم البطاقات -->
+        <div class="cards-panel" id="cards-panel">
+            <button class="back-btn" onclick="showMyCards()">العودة إلى الأقسام</button>
+            <h2 id="section-title"></h2>
+            <div class="cards-container" id="cards-container">
+                <!-- البطاقات ستضاف هنا -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let cardIndex = 0;
+        let sections = {}; // تخزين الأقسام والبطاقات
+
+        // تحميل البيانات من localStorage عند فتح التطبيق
+        function loadData() {
+            const savedData = localStorage.getItem("flashcardsData");
+            if (savedData) {
+                sections = JSON.parse(savedData);
+                updateMyCardsPanel();
+                updateSectionSelect(); // تحديث القائمة المنسدلة للأقسام
+            }
+
+            // تحميل الوضع الداكن
+            const darkMode = localStorage.getItem("darkMode");
+            if (darkMode === "enabled") {
+                document.body.classList.add("dark-mode");
+            }
+        }
+
+        // حفظ البيانات في localStorage
+        function saveData() {
+            localStorage.setItem("flashcardsData", JSON.stringify(sections));
+        }
+
+        // تحديث القائمة المنسدلة للأقسام
+        function updateSectionSelect() {
+            const sectionSelect = document.getElementById("section-select");
+            sectionSelect.innerHTML = '<option value="" disabled selected>اختر قسمًا</option><option value="new">إنشاء قسم جديد</option>';
+            for (const sectionName in sections) {
+                const option = document.createElement("option");
+                option.value = sectionName;
+                option.textContent = sectionName;
+                sectionSelect.appendChild(option);
+            }
+        }
+
+        // تحميل البيانات عند بدء التشغيل
+        loadData();
+
+        function previewImage(event) {
+            if (!event.target.files.length) return;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = document.querySelector(".control-panel img");
+                img.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function handleSectionSelect() {
+            const sectionSelect = document.getElementById("section-select");
+            const newSectionInput = document.getElementById("new-section");
+            if (sectionSelect.value === "new") {
+                newSectionInput.style.display = "block";
+                newSectionInput.focus();
+            } else {
+                newSectionInput.style.display = "none";
+            }
+        }
+
+        function addFlashcard() {
+            const word = document.getElementById("word").value;
+            const translation = document.getElementById("translation").value;
+            const imgElement = document.querySelector(".control-panel img");
+            const imageSrc = imgElement.src.includes("placeholder") ? "" : imgElement.src;
+            const sectionSelect = document.getElementById("section-select");
+            const newSectionInput = document.getElementById("new-section");
+            let selectedSection = sectionSelect.value;
+
+            if (selectedSection === "new") {
+                selectedSection = newSectionInput.value;
+                if (!selectedSection) {
+                    alert("يرجى إدخال اسم قسم جديد");
+                    return;
+                }
+
+                // التحقق مما إذا كان القسم موجودًا مسبقًا
+                if (sections[selectedSection]) {
+                    alert("القسم موجود بالفعل بهذا الاسم!");
+                    return;
+                }
+            }
+
+            if (!word || !translation || !selectedSection) {
+                alert("يرجى ملء جميع الحقول");
+                return;
+            }
+
+            // التحقق مما إذا كان القسم موجودًا
+            if (!sections[selectedSection]) {
+                sections[selectedSection] = []; // إنشاء قسم جديد
+                updateSectionSelect(); // تحديث القائمة المنسدلة
+                newSectionInput.value = ""; // مسح حقل القسم الجديد
+                newSectionInput.style.display = "none"; // إخفاء حقل القسم الجديد
+            }
+
+            // إضافة البطاقة إلى القسم
+            const card = {
+                word,
+                translation,
+                imageSrc,
+            };
+            sections[selectedSection].push(card);
+
+            // تحديث قسم "بطاقاتي" وحفظ البيانات
+            updateMyCardsPanel();
+            saveData();
+
+            // إعادة تعيين الخيارات إلى الحالة الفارغة
+            document.getElementById("word").value = "";
+            document.getElementById("translation").value = "";
+            imgElement.src = "https://via.placeholder.com/100"; // إعادة تعيين الصورة
+
+            // إظهار إشعار بنجاح الإضافة
+            alert("تمت إضافة البطاقة بنجاح!");
+        }
+
+        function showControlPanel() {
+            document.getElementById("control-panel").style.display = "flex";
+            document.getElementById("my-cards-panel").style.display = "none";
+            document.getElementById("cards-panel").style.display = "none";
+        }
+
+        function showMyCards() {
+            document.getElementById("control-panel").style.display = "none";
+            document.getElementById("my-cards-panel").style.display = "block";
+            document.getElementById("cards-panel").style.display = "none";
+            updateMyCardsPanel();
+        }
+
+        function showCards(sectionName) {
+            document.getElementById("control-panel").style.display = "none";
+            document.getElementById("my-cards-panel").style.display = "none";
+            document.getElementById("cards-panel").style.display = "block";
+            document.getElementById("section-title").textContent = sectionName;
+
+            const cardsContainer = document.getElementById("cards-container");
+            cardsContainer.innerHTML = ""; // مسح البطاقات الحالية
+
+            if (sections[sectionName]) {
+                sections[sectionName].forEach((card, index) => {
+                    const cardDiv = document.createElement("div");
+                    cardDiv.classList.add("flashcard");
+                    cardDiv.innerHTML = `
+                        <button class="delete-card-btn" onclick="deleteCard('${sectionName}', ${index})">✕</button>
+                        ${card.imageSrc ? `<img src="${card.imageSrc}" alt="Card Image">` : ""}
+                        <div class="word">${card.word}</div>
+                        <div class="translation">${card.translation}</div>
+                        <button class="audio-btn" onclick="playSound('${card.word}')">🔊</button>
+                    `;
+                    cardDiv.onclick = () => toggleTranslation(cardDiv);
+                    cardsContainer.appendChild(cardDiv);
+                });
+            }
+        }
+
+        function toggleTranslation(card) {
+            const translation = card.querySelector(".translation");
+            translation.style.display = translation.style.display === "none" ? "block" : "none";
+        }
+
+        function updateMyCardsPanel() {
+            const sectionsContainer = document.getElementById("sections-container");
+            sectionsContainer.innerHTML = ""; // مسح القائمة الحالية
+
+            for (const sectionName in sections) {
+                const sectionCard = document.createElement("div");
+                sectionCard.classList.add("section-card");
+                sectionCard.innerHTML = `
+                    <button class="delete-section-btn" onclick="deleteSection('${sectionName}')">✕</button>
+                    <button class="edit-section-btn" onclick="editSection('${sectionName}')">✎</button>
+                    <div class="section-icon">📚</div>
+                    <h3>${sectionName}</h3>
+                `;
+                sectionCard.onclick = () => showCards(sectionName);
+                sectionsContainer.appendChild(sectionCard);
+            }
+        }
+
+        function deleteSection(sectionName) {
+            if (confirm(`هل أنت متأكد من حذف القسم "${sectionName}"؟`)) {
+                delete sections[sectionName];
+                updateMyCardsPanel();
+                updateSectionSelect(); // تحديث القائمة المنسدلة
+                saveData();
+            }
+        }
+
+        function editSection(sectionName) {
+            const newSectionName = prompt("أدخل الاسم الجديد للقسم:", sectionName);
+            if (newSectionName && newSectionName !== sectionName) {
+                sections[newSectionName] = sections[sectionName];
+                delete sections[sectionName];
+                updateMyCardsPanel();
+                updateSectionSelect(); // تحديث القائمة المنسدلة
+                saveData();
+            }
+        }
+
+        function deleteCard(sectionName, cardIndex) {
+            if (confirm("هل أنت متأكد من حذف هذه البطاقة؟")) {
+                sections[sectionName].splice(cardIndex, 1);
+                showCards(sectionName);
+                saveData();
+            }
+        }
+
+        function playSound(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = "en";
+            speechSynthesis.speak(utterance);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem("darkMode", "enabled");
+            } else {
+                localStorage.setItem("darkMode", "disabled");
+            }
+        }
+    </script>
+</body>
+</html>
